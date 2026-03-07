@@ -1,0 +1,8 @@
+Website = "https://github.com/matwachich/dicom-organizer"
+
+[Details]
+Icon = "icon.png"
+Name = "DICOM Organizer"
+ID = "dicom-organizer"
+Version = "0.0.1"
+Build = 1
