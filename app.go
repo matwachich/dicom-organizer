@@ -310,9 +310,27 @@ func (w *sourceListItemData) updateDestination(destPath string) {
 		}
 	}
 
-	if len(repl) > 0 {
-		w.destination = strings.NewReplacer(repl...).Replace(destPath)
+	if len(repl) <= 0 {
+		w.destination = ""
+		return
 	}
+
+	w.destination = strings.NewReplacer(repl...).Replace(destPath)
+
+	if absPath, _ := filepath.Abs(w.destination); absPath != "" {
+		w.destination = absPath
+	}
+
+	elems := strings.Split(w.destination, string(filepath.Separator))
+	if strings.HasSuffix(elems[0], ":") {
+		elems[0] += string(filepath.Separator)
+	}
+
+	for i := 0; i < len(elems); i++ {
+		elems[i] = strings.TrimSpace(elems[i])
+	}
+
+	w.destination = filepath.Clean(filepath.Join(elems...))
 }
 
 func (w *sourceListItemData) process(removeSrc, overwriteDst bool) (success bool) {
