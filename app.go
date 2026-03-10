@@ -305,7 +305,7 @@ func (w *sourceListItemData) updateDestination(destPath string) {
 		if t, err := tag.FindByKeyword(strings.Trim(tagKeyword, "{}")); err == nil {
 			if elem, err := w.dicomInfo.FindElementByTagNested(t.Tag); err == nil {
 				repl = append(repl, tagKeyword)
-				repl = append(repl, strings.Trim(elem.Value.String(), "[]"))
+				repl = append(repl, forbiddenChars.Replace(strings.Trim(elem.Value.String(), "[]")))
 			}
 		}
 	}
@@ -315,22 +315,7 @@ func (w *sourceListItemData) updateDestination(destPath string) {
 		return
 	}
 
-	w.destination = strings.NewReplacer(repl...).Replace(destPath)
-
-	if absPath, _ := filepath.Abs(w.destination); absPath != "" {
-		w.destination = absPath
-	}
-
-	elems := strings.Split(w.destination, string(filepath.Separator))
-	if strings.HasSuffix(elems[0], ":") {
-		elems[0] += string(filepath.Separator)
-	}
-
-	for i := 0; i < len(elems); i++ {
-		elems[i] = strings.TrimSpace(elems[i])
-	}
-
-	w.destination = filepath.Clean(filepath.Join(elems...))
+	w.destination = sanitizePath(strings.NewReplacer(repl...).Replace(destPath))
 }
 
 func (w *sourceListItemData) process(removeSrc, overwriteDst bool) (success bool) {

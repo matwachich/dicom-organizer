@@ -12,9 +12,9 @@ import (
 var copyBuffer = make([]byte, 1024*1024*5)
 
 func doCopy(src, dst string, move, overwrite bool) (err error) {
-	stat, _ := os.Stat(dst)
-	if !overwrite && stat != nil {
-		return errors.New("le fichier destination existe déjà (" + strconv.Itoa(int(stat.Size())) + " octets)")
+	info, _ := os.Stat(dst)
+	if !overwrite && info != nil {
+		return errors.New("le fichier destination existe déjà (" + strconv.Itoa(int(info.Size())) + " octets)")
 	}
 
 	if err = os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
@@ -22,47 +22,47 @@ func doCopy(src, dst string, move, overwrite bool) (err error) {
 	}
 
 	if move {
-		if overwrite {
-			os.Remove(dst)
-		}
-
 		if err = os.Rename(src, dst); err == nil {
 			return
 		}
-		if le, ok := err.(*os.LinkError); !ok || le.Err != syscall.EXDEV {
+		if le, ok := err.(*os.LinkError); !ok || (le.Err != syscall.Errno(17) && le.Err != syscall.EXDEV) { // ERROR_NOT_SAME_DEVICE
 			return
 		}
 	}
 
-	hsrc, err := os.Open(src)
-	if err != nil {
-		return
-	}
-	defer hsrc.Close()
-
-	info, err := hsrc.Stat()
-	if err != nil {
-		return
-	}
-
-	hdst, err := os.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, info.Mode())
-	if err != nil {
-		return
-	}
-
-	err = func() error {
-		defer hdst.Close()
-		if _, err := io.CopyBuffer(hdst, hsrc, copyBuffer); err != nil {
-			return err
+	var hsrc, hdst *os.File
+	defer func() {
+		if hsrc != nil {
+			hsrc.Close()
 		}
-		return hdst.Sync()
+		if hdst != nil {
+			hdst.Close()
+		}
+
+		if err == nil && move {
+			err = os.Remove(src)
+		}
 	}()
+
+	hsrc, err = os.Open(src)
 	if err != nil {
 		return
 	}
 
-	if move {
-		err = os.Remove(src)
+	info, err = hsrc.Stat()
+	if err != nil {
+		return
 	}
+
+	hdst, err = os.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, info.Mode())
+	if err != nil {
+		return
+	}
+
+	if _, err = io.CopyBuffer(hdst, hsrc, copyBuffer); err != nil {
+		return
+	}
+
+	err = hdst.Sync()
 	return
 }
