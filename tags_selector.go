@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
@@ -18,7 +20,18 @@ func newTagsSelector() *tagsSelector {
 	w := &tagsSelector{}
 	w.ExtendBaseWidget(w)
 
-	w.entry = &widget.Entry{}
+	prefs := fyne.CurrentApp().Preferences()
+	var timer *time.Timer
+
+	w.entry = &widget.Entry{Text: prefs.String("structure")}
+	w.entry.OnChanged = func(s string) {
+		if timer != nil {
+			timer.Stop()
+		}
+		timer = time.AfterFunc(time.Second, func() {
+			prefs.SetString("structure", w.entry.Text)
+		})
+	}
 
 	// default used tags
 	tags := []tag.Tag{
