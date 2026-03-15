@@ -30,7 +30,7 @@ type DICOMOrganizerApp struct {
 	list *widget.List
 
 	dest *folderSelect
-	tags *tagsSelector
+	tags *structureEntry
 
 	removeSrc, overwriteDst *widget.Check
 
@@ -155,7 +155,7 @@ func newDICOMOrganizerApp(win fyne.Window) *DICOMOrganizerApp {
 	)
 
 	w.dest = newFolderSelect()
-	w.tags = newTagsSelector()
+	w.tags = newStructureEntry()
 
 	w.removeSrc = &widget.Check{
 		Text:      "Supprimer les fichiers source après la copie",

@@ -10,14 +10,14 @@ import (
 	"github.com/suyashkumar/dicom/pkg/tag"
 )
 
-type tagsSelector struct {
+type structureEntry struct {
 	widget.BaseWidget
 
 	entry *widget.Entry
 }
 
-func newTagsSelector() *tagsSelector {
-	w := &tagsSelector{}
+func newStructureEntry() *structureEntry {
+	w := &structureEntry{}
 	w.ExtendBaseWidget(w)
 
 	prefs := fyne.CurrentApp().Preferences()
@@ -68,11 +68,11 @@ func newTagsSelector() *tagsSelector {
 	return w
 }
 
-func (w *tagsSelector) CreateRenderer() fyne.WidgetRenderer {
+func (w *structureEntry) CreateRenderer() fyne.WidgetRenderer {
 	return widget.NewSimpleRenderer(w.entry)
 }
 
-func (w *tagsSelector) insert(text string) {
+func (w *structureEntry) insert(text string) {
 	for _, r := range text {
 		w.entry.TypedRune(r)
 	}

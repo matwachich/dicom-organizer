@@ -13,7 +13,7 @@ type DICOMOrganizerApp2 struct {
 	busy Busy
 
 	dest *folderSelect
-	tags *tagsSelector
+	tags *structureEntry
 
 	removeSrc, overwriteDst *widget.Check
 }
