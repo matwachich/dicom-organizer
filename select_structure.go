@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -30,6 +31,7 @@ func newStructureEntry() *structureEntry {
 		}
 		timer = time.AfterFunc(time.Second, func() {
 			prefs.SetString("structure", w.entry.Text)
+			fmt.Println("Structure saved")
 		})
 	}
 

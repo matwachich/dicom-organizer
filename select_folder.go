@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -30,6 +31,7 @@ func newFolderSelect() *folderSelect {
 			}
 			timer = time.AfterFunc(time.Second, func() {
 				prefs.SetString("destination", w.entry.Text)
+				fmt.Println("Destination saved")
 			})
 		},
 		ActionItem: &widget.Button{Icon: theme.FolderOpenIcon(), Importance: widget.LowImportance, OnTapped: func() {
