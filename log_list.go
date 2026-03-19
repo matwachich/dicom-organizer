@@ -41,3 +41,14 @@ type logListItem struct {
 	rt   *widget.RichText
 	icon *widget.Icon
 }
+
+func newLogListItem() *logListItem {
+	w := &logListItem{}
+	w.ExtendBaseWidget(w)
+
+	return w
+}
+
+func (w *logListItem) CreateRenderer() fyne.WidgetRenderer {
+	return widget.NewSimpleRenderer()
+}
