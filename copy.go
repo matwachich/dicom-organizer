@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-	"syscall"
 )
 
 var copyBuffer = make([]byte, 1024*1024*5)
@@ -14,7 +13,7 @@ var copyBuffer = make([]byte, 1024*1024*5)
 func doCopy(src, dst string, move, overwrite bool) (err error) {
 	info, _ := os.Stat(dst)
 	if !overwrite && info != nil {
-		return errors.New("le fichier destination existe déjà (" + strconv.Itoa(int(info.Size())) + " octets)")
+		return errors.New("le fichier '" + dst + "' existe déjà (" + strconv.Itoa(int(info.Size())) + " octets)")
 	}
 
 	if err = os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
@@ -25,9 +24,9 @@ func doCopy(src, dst string, move, overwrite bool) (err error) {
 		if err = os.Rename(src, dst); err == nil {
 			return
 		}
-		if le, ok := err.(*os.LinkError); !ok || (le.Err != syscall.Errno(17) && le.Err != syscall.EXDEV) { // ERROR_NOT_SAME_DEVICE
+		/*if le, ok := err.(*os.LinkError); !ok || (le.Err != syscall.Errno(17) && le.Err != syscall.EXDEV) { // ERROR_NOT_SAME_DEVICE
 			return
-		}
+		}*/
 	}
 
 	var hsrc, hdst *os.File

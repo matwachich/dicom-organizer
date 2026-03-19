@@ -24,6 +24,8 @@ type DICOMOrganizerApp2 struct {
 	goFile, goFolder *widget.Button
 
 	status *widget.Label
+
+	log *LogList
 }
 
 func newDICOMOrganizerApp2(win fyne.Window) *DICOMOrganizerApp2 {
@@ -71,14 +73,9 @@ func (w *DICOMOrganizerApp2) CreateRenderer() fyne.WidgetRenderer {
 		layout.NewSpacer(), container.NewHBox(w.removeSrc, w.overwriteDst),
 	)
 
-	return widget.NewSimpleRenderer(container.NewVBox(
-		cfg,
-		widget.NewSeparator(),
-		container.NewBorder(
-			nil, nil,
-			container.NewHBox(w.goFile, w.goFolder),
-			nil,
-			w.status,
-		),
+	return widget.NewSimpleRenderer(container.NewBorder(
+		container.NewVBox(cfg, container.NewBorder(nil, nil, container.NewHBox(w.goFile, w.goFolder), nil, w.status)),
+		nil, nil, nil,
+		w.log,
 	))
 }
