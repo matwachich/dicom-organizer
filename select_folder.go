@@ -44,6 +44,18 @@ func newFolderSelect() *folderSelect {
 	return w
 }
 
+func (w *folderSelect) Enable() {
+	w.entry.Enable()
+	w.entry.ActionItem.(*widget.Button).Enable()
+}
+func (w *folderSelect) Disable() {
+	w.entry.Disable()
+	w.entry.ActionItem.(*widget.Button).Disable()
+}
+func (w *folderSelect) Disabled() bool {
+	return w.entry.Disabled()
+}
+
 func (w *folderSelect) CreateRenderer() fyne.WidgetRenderer {
 	return widget.NewSimpleRenderer(w.entry)
 }

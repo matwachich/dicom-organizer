@@ -70,6 +70,18 @@ func newStructureEntry() *structureEntry {
 	return w
 }
 
+func (w *structureEntry) Enable() {
+	w.entry.Enable()
+	w.entry.ActionItem.(*widget.Button).Enable()
+}
+func (w *structureEntry) Disable() {
+	w.entry.Disable()
+	w.entry.ActionItem.(*widget.Button).Disable()
+}
+func (w *structureEntry) Disabled() bool {
+	return w.entry.Disabled()
+}
+
 func (w *structureEntry) CreateRenderer() fyne.WidgetRenderer {
 	return widget.NewSimpleRenderer(w.entry)
 }
