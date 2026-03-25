@@ -6,9 +6,9 @@ func main() {
 	a := app.New()
 	w := a.NewWindow("DICOM Organizer")
 
-	dicomApp := newDICOMOrganizerApp(w)
+	dicomApp := newDICOMOrganizerApp()
 	w.SetCloseIntercept(func() {
-		dicomApp.saveConfig()
+		dicomApp.savePrefs()
 		w.Close()
 	})
 

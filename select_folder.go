@@ -13,6 +13,8 @@ import (
 type folderSelect struct {
 	widget.BaseWidget
 
+	prefs fyne.Preferences
+
 	entry *widget.Entry
 }
 
@@ -20,19 +22,16 @@ func newFolderSelect() *folderSelect {
 	w := &folderSelect{}
 	w.ExtendBaseWidget(w)
 
-	prefs := fyne.CurrentApp().Preferences()
+	w.prefs = fyne.CurrentApp().Preferences()
 	var timer *time.Timer
 
 	w.entry = &widget.Entry{
-		Text: prefs.String("destination"),
+		Text: w.prefs.String("destination"),
 		OnChanged: func(s string) {
 			if timer != nil {
 				timer.Stop()
 			}
-			timer = time.AfterFunc(time.Second, func() {
-				prefs.SetString("destination", w.entry.Text)
-				fmt.Println("Destination saved")
-			})
+			timer = time.AfterFunc(time.Second, w.savePrefs)
 		},
 		ActionItem: &widget.Button{Icon: theme.FolderOpenIcon(), Importance: widget.LowImportance, OnTapped: func() {
 			if res, _ := zenity.SelectFile(zenity.Title("Choisier le dossier de destination"), zenity.Directory()); res != "" {
@@ -42,6 +41,11 @@ func newFolderSelect() *folderSelect {
 	}
 
 	return w
+}
+
+func (w *folderSelect) savePrefs() {
+	w.prefs.SetString("destination", w.entry.Text)
+	fmt.Println("Destination saved")
 }
 
 func (w *folderSelect) Enable() {

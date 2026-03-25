@@ -27,7 +27,10 @@ func newLogList() *LogList {
 	w.list = widget.NewList(
 		func() int { return len(w.data) },
 		func() fyne.CanvasObject { return newLogListItem() },
-		func(id widget.ListItemID, co fyne.CanvasObject) { co.(*logListItem).update(&w.data[id]) },
+		func(id widget.ListItemID, co fyne.CanvasObject) {
+			co.(*logListItem).update(&w.data[id])
+			w.list.SetItemHeight(id, co.MinSize().Height)
+		},
 	)
 
 	return w
@@ -99,6 +102,8 @@ func (w *logListItem) update(data *logEntry) {
 
 	w.Refresh()
 }
+
+func (w *logListItem) Tapped(_ *fyne.PointEvent) {}
 
 func (w *logListItem) CreateRenderer() fyne.WidgetRenderer {
 	return widget.NewSimpleRenderer(container.NewBorder(nil, nil, w.icon, nil, w.rt))

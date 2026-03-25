@@ -2,37 +2,42 @@ package main
 
 import (
 	"fmt"
+	"regexp"
+	"strings"
 	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 
+	"github.com/suyashkumar/dicom"
 	"github.com/suyashkumar/dicom/pkg/tag"
 )
 
 type structureEntry struct {
 	widget.BaseWidget
 
+	prefs fyne.Preferences
+	r     *regexp.Regexp
+
 	entry *widget.Entry
 }
 
 func newStructureEntry() *structureEntry {
-	w := &structureEntry{}
+	w := &structureEntry{
+		prefs: fyne.CurrentApp().Preferences(),
+		r:     regexp.MustCompile(`\{.+?\}`),
+	}
 	w.ExtendBaseWidget(w)
 
-	prefs := fyne.CurrentApp().Preferences()
 	var timer *time.Timer
 
-	w.entry = &widget.Entry{Text: prefs.String("structure")}
+	w.entry = &widget.Entry{Text: w.prefs.String("structure")}
 	w.entry.OnChanged = func(s string) {
 		if timer != nil {
 			timer.Stop()
 		}
-		timer = time.AfterFunc(time.Second, func() {
-			prefs.SetString("structure", w.entry.Text)
-			fmt.Println("Structure saved")
-		})
+		timer = time.AfterFunc(time.Second, w.savePrefs)
 	}
 
 	// default used tags
@@ -68,6 +73,25 @@ func newStructureEntry() *structureEntry {
 	}}
 
 	return w
+}
+
+func (w *structureEntry) getStructureForDicomData(dicomData dicom.Dataset) string {
+	var repl []string
+	for _, tagKeyword := range w.r.FindAllString(w.entry.Text, -1) {
+		if t, err := tag.FindByKeyword(strings.Trim(tagKeyword, "{}")); err == nil {
+			if elem, err := dicomData.FindElementByTagNested(t.Tag); err == nil {
+				repl = append(repl, tagKeyword)
+				repl = append(repl, forbiddenChars.Replace(strings.Trim(elem.Value.String(), "[]")))
+			}
+		}
+	}
+
+	return strings.NewReplacer(repl...).Replace(w.entry.Text)
+}
+
+func (w *structureEntry) savePrefs() {
+	w.prefs.SetString("structure", w.entry.Text)
+	fmt.Println("Structure saved")
 }
 
 func (w *structureEntry) Enable() {
